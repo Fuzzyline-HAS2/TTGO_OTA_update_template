@@ -21,7 +21,7 @@ const char *version_url = "https://raw.githubusercontent.com/Fuzzyline-HAS2/"
                           "OTA_update_template/main/version.txt";
 
 // 3. 디버그 및 버전 정보
-#define CURRENT_FIRMWARE_VERSION 1
+#define CURRENT_FIRMWARE_VERSION 2
 
 // ==========================================
 #endif
