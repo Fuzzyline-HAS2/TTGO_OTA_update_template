@@ -14,11 +14,11 @@ const char *password = "GGA48@6587";
 // 주의: 반드시 'raw' 주소여야 합니다. (브라우저에서 주소를 쳤을 때 파일이 바로
 // 다운로드되어야 함)
 const char *firmware_url = "https://raw.githubusercontent.com/Fuzzyline-HAS2/"
-                           "updated_neopixel_hyo/main/update.bin";
+                           "OTA_update_template/main/update.bin";
 
 // 버전 정보 파일 URL (version.txt)
 const char *version_url = "https://raw.githubusercontent.com/Fuzzyline-HAS2/"
-                          "updated_neopixel_hyo/main/version.txt";
+                          "OTA_update_template/main/version.txt";
 
 // 3. 디버그 및 버전 정보
 #define CURRENT_FIRMWARE_VERSION 4
