@@ -74,8 +74,16 @@ def find_newest_bin():
 def git_push(version):
     print("\n☁️ GitHub에 업로드 중...")
     try:
+        # version.txt 업데이트
+        version_file = os.path.join(BASE_DIR, "version.txt")
+        with open(version_file, "w", encoding="utf-8") as f:
+            f.write(str(version))
+        print(f"📝 version.txt를 {version}로 업데이트했습니다.")
+        
+        # Git 작업
         subprocess.run(["git", "add", OUTPUT_FILENAME], check=True)
         subprocess.run(["git", "add", CONFIG_FILE], check=True) # 버전 바뀐 설정파일도 함께
+        subprocess.run(["git", "add", version_file], check=True) # version.txt도 추가
         subprocess.run(["git", "commit", "-m", f"Firmware Update v{version}"], check=True)
         subprocess.run(["git", "push"], check=True)
         print("✅ 업로드 완료!")

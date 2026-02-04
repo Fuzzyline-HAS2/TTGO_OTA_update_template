@@ -26,6 +26,42 @@
 
 // =======================================================
 
+// 서버의 버전 정보를 확인하는 함수
+int checkServerVersion() {
+  Serial.println("[OTA 모듈] 서버 버전 확인 중...");
+
+  HTTPClient http;
+  WiFiClientSecure client;
+  client.setInsecure();
+  client.setHandshakeTimeout(30000); // 30초로 증가
+
+  http.begin(client, String(version_url));
+  http.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
+  http.setTimeout(30000); // 30초로 증가
+
+  int httpCode = http.GET();
+
+  if (httpCode == HTTP_CODE_OK) {
+    String versionStr = http.getString();
+    versionStr.trim(); // 공백 및 개행 제거
+    int serverVersion = versionStr.toInt();
+
+    Serial.printf("[OTA 모듈] 서버 버전: %d, 현재 버전: %d\n", serverVersion,
+                  CURRENT_FIRMWARE_VERSION);
+
+    http.end();
+    client.stop(); // 명시적으로 연결 종료
+    delay(500);    // 연결 완전히 종료될 때까지 대기
+    return serverVersion;
+  } else {
+    Serial.printf("[OTA 모듈] ⚠️ 버전 확인 실패 (HTTP 코드: %d)\n", httpCode);
+    http.end();
+    client.stop(); // 명시적으로 연결 종료
+    delay(500);
+    return -1; // 에러 시 -1 반환
+  }
+}
+
 // URL에서 펌웨어를 다운로드하고 OTA 업데이트를 실행하는 함수
 void execOTA() {
   // URL 유효성 검사
@@ -104,49 +140,55 @@ void execOTA() {
   http.end();
 }
 
-void setup() {
-  delay(2000);
-  Serial.begin(115200);
-  delay(1000);
-
-  Serial.println("\n\n=================================");
-  Serial.println("SimpleOTA - 초간단 URL 업데이트 예제");
-  Serial.println("=================================\n");
-  Serial.println("시스템 부팅 중...");
+void initOTA() {
+  Serial.println("\n[OTA 모듈] 초기화 시작...");
 
   // 와이파이 연결 시작
-  Serial.print("와이파이 연결 중: ");
+  Serial.print("[OTA 모듈] 와이파이 연결 중: ");
   Serial.println(ssid);
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
-  // 연결될 때까지 최대 20초간 대기합니다.
+  // 연결될 때까지 최대 10초간 대기합니다.
   int tries = 0;
-  while (WiFi.status() != WL_CONNECTED && tries < 10) {
+  while (WiFi.status() != WL_CONNECTED && tries < 20) {
     delay(500);
     Serial.print(".");
     tries++;
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\n와이파이 연결 성공!");
-    Serial.print("할당된 IP 주소: ");
+    Serial.println("\n[OTA 모듈] 와이파이 연결 성공!");
+    Serial.print("[OTA 모듈] 할당된 IP 주소: ");
     Serial.println(WiFi.localIP());
 
-    // [테스트용] 와이파이 연결 후 5초 뒤에 자동으로 OTA를 시도합니다.
-    // 실제 제품에서는 버튼을 누르거나 특정 MQTT 명령을 받았을 때 실행하도록
-    // 수정할 수 있습니다.
-    Serial.println("5초 후 OTA 업데이트를 시도합니다...");
-    delay(5000);
-    execOTA();
+    // 서버 버전 체크
+    int serverVersion = checkServerVersion();
+
+    if (serverVersion == -1) {
+      // 버전 확인 실패
+      Serial.println("[OTA 모듈] ⚠️ 버전 확인 실패. OTA 스킵");
+    } else if (serverVersion > CURRENT_FIRMWARE_VERSION) {
+      // 새 버전 발견!
+      Serial.printf("[OTA 모듈] 🆕 새 버전 발견! (현재: v%d → 서버: v%d)\n",
+                    CURRENT_FIRMWARE_VERSION, serverVersion);
+      Serial.println("[OTA 모듈] 5초 후 펌웨어 다운로드를 시작합니다...");
+      delay(5000);
+      checkOTA();
+    } else {
+      // 최신 버전 사용 중
+      Serial.printf("[OTA 모듈] ✅ 최신 버전 사용 중 (v%d)\n",
+                    CURRENT_FIRMWARE_VERSION);
+      Serial.println("[OTA 모듈] OTA 스킵");
+    }
   } else {
-    Serial.println("\n❌ 와이파이 연결 실패! 아이디와 비밀번호를 확인하세요.");
+    Serial.println(
+        "\n[OTA 모듈] ❌ 와이파이 연결 실패! 아이디와 비밀번호를 확인하세요.");
   }
+
+  Serial.println("[OTA 모듈] 초기화 완료\n");
 }
 
-void loop() {
-  // 아무것도 하지 않음
-  Serial.println("야호");
-  delay(1000);
-}
+// OTA 업데이트를 확인하고 실행하는 함수 (언제든지 호출 가능)
+void checkOTA() { execOTA(); }
