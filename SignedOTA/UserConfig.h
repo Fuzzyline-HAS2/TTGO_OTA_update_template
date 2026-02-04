@@ -21,7 +21,7 @@ const char *version_url = "https://raw.githubusercontent.com/Fuzzyline-HAS2/"
                           "updated_neopixel_hyo/main/version.txt";
 
 // 3. 디버그 및 버전 정보
-#define CURRENT_FIRMWARE_VERSION 3
+#define CURRENT_FIRMWARE_VERSION 4
 
 // ==========================================
 #endif
