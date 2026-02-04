@@ -205,8 +205,11 @@ void initOTA() {
       Serial.println("[OTA 모듈] OTA 스킵");
     }
   } else {
-    Serial.println(
-        "\n[OTA 모듈] ❌ 와이파이 연결 실패! 아이디와 비밀번호를 확인하세요.");
+    // WiFi 연결 실패 - 자동 재부팅
+    Serial.println("\n[OTA 모듈] ❌ 와이파이 연결 실패!");
+    Serial.println("[OTA 모듈] 3초 후 자동 재부팅합니다...");
+    delay(3000);
+    ESP.restart();
   }
 
   Serial.println("[OTA 모듈] 초기화 완료\n");
