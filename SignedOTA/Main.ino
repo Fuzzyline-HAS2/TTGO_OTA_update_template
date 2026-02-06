@@ -41,7 +41,7 @@ void loop() {
 
   // NeoPixel 애니메이션 실행
   updateNeoPixel();
-
+  Serial.println("업데이트 됐어용 !! 키득키득");
   // 여기에 새 모듈 업데이트 추가
   // updateNewModule();
 
