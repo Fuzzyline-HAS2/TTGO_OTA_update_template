@@ -25,9 +25,6 @@ void setup() {
   // OTA 모듈: WiFi 연결 및 펌웨어 업데이트 체크
   initOTA();
 
-  // NeoPixel 모듈: LED 및 엔코더 초기화
-  initNeoPixel();
-
   // 여기에 새 모듈 초기화 추가
   // initNewModule();
 
